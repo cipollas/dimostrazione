@@ -95,7 +95,6 @@ export function ChatMessage({ message, isOwn, isAdmin, onReply, onDelete, onBan 
             Il tuo browser non supporta l'audio.
           </audio>
         )}
-        {message.content && <p className="text-sm break-words text-foreground">{message.content}</p>}
         <p className={`mt-1 text-[10px] ${isOwn ? "text-foreground/70" : "text-muted-foreground"}`}>
           {timeStr}
         </p>
