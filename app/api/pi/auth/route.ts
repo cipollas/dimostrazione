@@ -22,37 +22,46 @@ export async function POST(req: Request) {
     }
     const piData = await piRes.json()
 
-    // Check KYC status (must be approved or provisional)
-    const credentials = piData.credentials || piUser.credentials || {}
-    const kycVerified = credentials.kyc_verification_status === "approved" || 
-                        credentials.kyc_verification_status === "provisional" ||
-                        piUser.kyc_verified === true
-    
-    // Check migration status
-    const hasMigrated = credentials.has_migrated === true || 
-                        piUser.has_migrated === true
+    const supabase = getAdmin()
+    const username = piData.username || piUser.uid
+    const isAdmin = username === ADMIN_USERNAME
 
-    // Require both KYC and migration (unless no credentials data available - fallback to allow)
-    const hasCredentialsData = Object.keys(credentials).length > 0 || 
-                               piUser.kyc_verified !== undefined || 
-                               piUser.has_migrated !== undefined
-    
-    if (hasCredentialsData) {
-      if (!kycVerified) {
+    // Admin bypasses all checks
+    if (!isAdmin) {
+      // Check KYC status from multiple possible locations
+      const credentials = piData.credentials || piUser.credentials || {}
+      
+      // KYC can be in different formats depending on Pi SDK version
+      const kycStatus = credentials.kyc_verification_status || 
+                        credentials.kyc_status ||
+                        piUser.kyc_verification_status
+      
+      const kycVerified = kycStatus === "approved" || 
+                          kycStatus === "provisional" ||
+                          kycStatus === "APPROVED" ||
+                          kycStatus === "PROVISIONAL" ||
+                          piUser.kyc_verified === true ||
+                          credentials.kyc_verified === true
+      
+      // Check migration status
+      const hasMigrated = credentials.has_migrated === true || 
+                          piUser.has_migrated === true ||
+                          credentials.migration_status === "completed"
+
+      // Only block if we have explicit negative data
+      if (kycStatus && !kycVerified) {
         return NextResponse.json({ 
           error: "KYC non verificato. Devi avere il KYC approvato o provvisorio per accedere." 
         }, { status: 403 })
       }
-      if (!hasMigrated) {
+      
+      // Only check migration if KYC status was provided
+      if (kycStatus && credentials.has_migrated === false) {
         return NextResponse.json({ 
           error: "Migrazione non completata. Devi completare la prima migrazione per accedere." 
         }, { status: 403 })
       }
     }
-
-    const supabase = getAdmin()
-    const username = piData.username || piUser.uid
-    const isAdmin = username === ADMIN_USERNAME
 
     // Check if banned
     const { data: banned } = await supabase
