@@ -10,39 +10,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Nessun file fornito" }, { status: 400 })
     }
 
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm", "video/quicktime"]
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: "Tipo di file non supportato" }, { status: 400 })
+    // Check file type
+    const isImage = file.type.startsWith("image/")
+    const isAudio = file.type.startsWith("audio/")
+    
+    if (!isImage && !isAudio) {
+      return NextResponse.json({ error: "Solo immagini e audio sono permessi" }, { status: 400 })
     }
 
-    // Validate file size (max 10MB for images, 50MB for videos)
-    const maxSize = file.type.startsWith("video/") ? 50 * 1024 * 1024 : 10 * 1024 * 1024
+    // Validate file size
+    const maxSize = isAudio ? 10 * 1024 * 1024 : 5 * 1024 * 1024
     if (file.size > maxSize) {
-      return NextResponse.json({ error: "File troppo grande" }, { status: 400 })
+      return NextResponse.json({ error: `File troppo grande (max ${isAudio ? "10MB" : "5MB"})` }, { status: 400 })
     }
 
-    // Upload to Vercel Blob (public for chat media)
-    const blob = await put(`chat/${Date.now()}-${file.name}`, file, {
-      access: "public",
-    })
-
-    // Determine media type
-    const mediaType = file.type.startsWith("video/") ? "video" : "image"
-
-    return NextResponse.json({ url: blob.url, mediaType })
-  } catch (error) {
-    console.error("Upload error:", error)
-    return NextResponse.json({ error: "Upload fallito" }, { status: 500 })
-    if (!file.type.startsWith("image/")) {
-      return NextResponse.json({ error: "Solo immagini sono permesse" }, { status: 400 })
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: "Immagine troppo grande (max 5MB)" }, { status: 400 })
-    }
-
-    const blob = await put(`chat-images/${Date.now()}-${file.name}`, file, {
+    const folder = isAudio ? "chat-audio" : "chat-images"
+    const blob = await put(`${folder}/${Date.now()}-${file.name}`, file, {
       access: "public",
     })
 
