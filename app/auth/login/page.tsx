@@ -52,7 +52,7 @@ function LoginForm() {
     setStatus("Connessione a Pi Network...")
 
     try {
-      const auth = await Pi.authenticate(["username", "payments"], () => {})
+      const auth = await Pi.authenticate(["username", "payments", "wallet_address"], () => {})
       setStatus("Verifica credenziali...")
 
       const res = await fetch("/api/pi/auth", {
