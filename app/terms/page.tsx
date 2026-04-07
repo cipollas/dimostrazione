@@ -36,12 +36,12 @@ export default function TermsOfService() {
 
             <section>
               <h2 className="mb-2 text-base font-bold">2. Accettazione dei Termini</h2>
-              <p>{"Utilizzando Chat Pionieri (\"l'App\"), accetti di essere vincolato da questi Termini di Servizio. Se non accetti questi termini, ti preghiamo di non utilizzare l'app."}</p>
+              <p>{"Utilizzando App Pionieri (\"l'App\"), accetti di essere vincolato da questi Termini di Servizio. Se non accetti questi termini, ti preghiamo di non utilizzare l'app."}</p>
             </section>
 
             <section>
               <h2 className="mb-2 text-base font-bold">3. Descrizione del Servizio</h2>
-              <p>Chat Pionieri offre una piattaforma di messaggistica per i Pionieri di Pi Network con KYC approvato e migrazione al Mainnet completata. Il servizio include chat in tempo reale, invio di immagini e la possibilita di effettuare donazioni tramite Pi.</p>
+              <p>App Pionieri offre una piattaforma di messaggistica per i Pionieri di Pi Network con KYC approvato e migrazione al Mainnet completata. Il servizio include chat in tempo reale, invio di immagini e la possibilita di effettuare donazioni tramite Pi.</p>
             </section>
 
             <section>
@@ -101,12 +101,12 @@ export default function TermsOfService() {
 
             <section>
               <h2 className="mb-2 text-base font-bold">2. Acceptance of Terms</h2>
-              <p>{"By using Chat Pionieri (\"the App\"), you agree to be bound by these Terms of Service. If you do not accept these terms, please do not use the app."}</p>
+              <p>{"By using App Pionieri (\"the App\"), you agree to be bound by these Terms of Service. If you do not accept these terms, please do not use the app."}</p>
             </section>
 
             <section>
               <h2 className="mb-2 text-base font-bold">3. Service Description</h2>
-              <p>Chat Pionieri provides a messaging platform for Pi Network Pioneers with approved KYC and completed Mainnet migration. The service includes real-time chat, image sharing, and the ability to make donations via Pi.</p>
+              <p>App Pionieri provides a messaging platform for Pi Network Pioneers with approved KYC and completed Mainnet migration. The service includes real-time chat, image sharing, and the ability to make donations via Pi.</p>
             </section>
 
             <section>
