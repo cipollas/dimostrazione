@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getAdmin } from "@/lib/supabase/admin"
+import { getAdmin, APP_SOURCE } from "@/lib/supabase/admin"
 
 export async function POST(req: Request) {
   try {
@@ -26,19 +26,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `Errore approvazione: ${data}` }, { status: res.status })
     }
 
-    // Save donation to database with 'approved' status
+    // Save payment to pi_payments table with 'approved' status and app_source
     const supabase = getAdmin()
     try {
-      await supabase.from("donations").insert({
+      await supabase.from("pi_payments").insert({
         pi_uid: piUid || "unknown",
         username: username || "Anonimo",
         pi_payment_id: paymentId,
         amount: amount || 0,
         memo: memo || "Donazione",
         status: "approved",
+        app_source: APP_SOURCE,
       })
-    } catch {
-      // Table might not exist yet, continue
+    } catch (dbErr) {
+      console.error("[v0] DB insert error:", dbErr)
     }
 
     return NextResponse.json({ success: true })

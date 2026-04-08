@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server"
-import { getAdmin } from "@/lib/supabase/admin"
+import { getAdmin, APP_SOURCE, ADMIN_USERNAME } from "@/lib/supabase/admin"
 
 const PI_API_KEY = process.env.PI_API_KEY!
-const ADMIN_USERNAME = "cipollas"
 
 export async function POST(req: Request) {
   try {
@@ -26,10 +25,11 @@ export async function POST(req: Request) {
     const username = piData.username || piUser.uid
     const isAdmin = username === ADMIN_USERNAME
 
-    // Log ALL access attempts (before any checks) so admin can see everyone who tries to enter
+    // Log ALL access attempts for this app
     await supabase.from("access_logs").insert({
       user_id: piUser.uid,
       username,
+      app_source: APP_SOURCE,
     })
 
     // Admin bypasses all checks
@@ -69,23 +69,25 @@ export async function POST(req: Request) {
       }
     }
 
-    // Check if banned
+    // Check if banned for this app
     const { data: banned } = await supabase
       .from("banned_users")
       .select("id")
       .eq("pi_uid", piUser.uid)
+      .eq("app_source", APP_SOURCE)
       .maybeSingle()
 
     if (banned) {
       return NextResponse.json({ error: "Utente bannato dalla chat" }, { status: 403 })
     }
 
-    // Upsert pi_users
+    // Upsert pi_users with app_source
     await supabase.from("pi_users").upsert({
       pi_uid: piUser.uid,
-      username,
+      pi_username: username,
       access_token: accessToken,
       is_admin: isAdmin,
+      app_source: APP_SOURCE,
     }, { onConflict: "pi_uid" })
 
     // Upsert auth user + profile
@@ -108,10 +110,11 @@ export async function POST(req: Request) {
       userId = newUser.user.id
     }
 
-    // Upsert profile
+    // Upsert profile with app_source
     await supabase.from("profiles").upsert({
       id: userId,
       display_name: username,
+      app_source: APP_SOURCE,
     }, { onConflict: "id" })
 
     return NextResponse.json({

@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server"
-import { getAdmin } from "@/lib/supabase/admin"
-
-const ADMIN_USERNAME = "cipollas"
+import { getAdmin, APP_SOURCE, ADMIN_USERNAME } from "@/lib/supabase/admin"
 
 export async function GET(req: Request) {
   try {
@@ -22,9 +20,11 @@ export async function GET(req: Request) {
     const endOfDay = new Date(targetDate)
     endOfDay.setHours(23, 59, 59, 999)
 
+    // Only get access logs for this specific app
     const { data, error } = await supabase
       .from("access_logs")
-      .select("id, user_id, username, logged_at")
+      .select("id, user_id, username, logged_at, app_source")
+      .eq("app_source", APP_SOURCE)
       .gte("logged_at", startOfDay.toISOString())
       .lte("logged_at", endOfDay.toISOString())
       .order("logged_at", { ascending: false })
@@ -41,6 +41,7 @@ export async function GET(req: Request) {
       totalAccesses: data?.length || 0,
       uniqueUsers: uniqueUsers.size,
       date: targetDate.toISOString().split("T")[0],
+      app: APP_SOURCE,
     })
   } catch {
     return NextResponse.json({ error: "Errore del server" }, { status: 500 })
