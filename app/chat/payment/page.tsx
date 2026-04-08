@@ -66,7 +66,7 @@ export default function PaymentPage() {
       const authResult = await Pi.authenticate(["payments", "username"], () => {})
       const piUid = authResult?.user?.uid || "unknown"
       const username = authResult?.user?.username || "Anonimo"
-      const memo = `Donazione ${parsedAmount} Pi - Chat Pionieri`
+      const memo = `Donazione ${parsedAmount} Pi - App Pionieri`
 
       Pi.createPayment(
         { amount: parsedAmount, memo, metadata: { purpose: "donation" } },

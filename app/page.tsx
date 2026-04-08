@@ -23,7 +23,7 @@ export default function Home() {
           href="/auth/login"
           className="rounded-xl bg-[#F7A800] px-8 py-4 text-lg font-bold text-foreground"
         >
-          Accedi alla Chat Pionieri
+          Accedi all&apos;App Pionieri
         </a>
       </div>
     )

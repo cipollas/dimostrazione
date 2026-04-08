@@ -90,9 +90,9 @@ function LoginForm() {
         <span className="text-4xl font-bold text-card">Pi</span>
       </div>
 
-      <h1 className="mt-6 text-2xl font-bold text-foreground">Chat Pionieri</h1>
+      <h1 className="mt-6 text-2xl font-bold text-foreground">App Pionieri</h1>
       <p className="mt-2 text-center text-muted-foreground">
-        Chat esclusiva per Pionieri verificati con KYC approvato o provvisorio e prima migrazione completata
+        App esclusiva per Pionieri verificati con KYC approvato o provvisorio e prima migrazione completata
       </p>
 
       <button

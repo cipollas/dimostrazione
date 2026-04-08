@@ -254,7 +254,7 @@ export function ChatRoom({ currentUserId, currentUsername, isAdmin }: ChatRoomPr
       {/* Header */}
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card px-4 py-3">
         <div>
-          <h1 className="text-lg font-bold text-foreground">Chat Pionieri</h1>
+          <h1 className="text-lg font-bold text-foreground">App Pionieri</h1>
           <div className="flex items-center gap-2">
             <p className="text-xs text-muted-foreground">{currentUsername}{isAdmin ? " (Admin)" : ""}</p>
             <button

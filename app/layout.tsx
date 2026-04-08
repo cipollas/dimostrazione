@@ -6,8 +6,8 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
 export const metadata: Metadata = {
-  title: "Chat Pionieri - Pi Network",
-  description: "Chat esclusiva per Pionieri verificati Pi Network",
+  title: "App Pionieri - Pi Network",
+  description: "App esclusiva per Pionieri verificati Pi Network",
 }
 
 export const viewport: Viewport = {
