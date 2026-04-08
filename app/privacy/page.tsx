@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 
+// Privacy Policy page for App Pionieri
 export default function PrivacyPolicy() {
   const [lang, setLang] = useState<"it" | "en">("it")
 
