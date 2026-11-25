@@ -62,6 +62,8 @@ export function ChatMessage({ message, isOwn, isAdmin, onReply, onDelete, onBan 
         {message.media_url && message.media_type === "image" && (
           <img 
             src={message.media_url} 
+            loading="lazy"
+            decoding="async"
             alt="Immagine condivisa"
             className="mt-1 max-w-full rounded-lg"
             style={{ maxHeight: "300px" }}
@@ -71,6 +73,7 @@ export function ChatMessage({ message, isOwn, isAdmin, onReply, onDelete, onBan 
           <video 
             src={message.media_url} 
             controls
+            preload="none"
             className="mt-1 max-w-full rounded-lg"
             style={{ maxHeight: "300px" }}
           />
@@ -80,16 +83,18 @@ export function ChatMessage({ message, isOwn, isAdmin, onReply, onDelete, onBan 
         {message.content && (
           <p className="text-sm break-words text-foreground">{message.content}</p>
         )}
-        {message.image_url && (
+        {message.image_url && !(message.media_type === "image" && message.media_url === message.image_url) && (
           <img
             src={message.image_url}
+            loading="lazy"
+            decoding="async"
             alt="Immagine condivisa"
             className="mt-1 max-w-full rounded-lg"
             style={{ maxHeight: 300 }}
           />
         )}
         {message.audio_url && (
-          <audio controls className="mt-1 w-full max-w-[250px]" preload="metadata">
+          <audio controls className="mt-1 w-full max-w-[250px]" preload="none">
             <source src={message.audio_url} type="audio/webm" />
             <source src={message.audio_url} type="audio/mp4" />
             Il tuo browser non supporta l'audio.
