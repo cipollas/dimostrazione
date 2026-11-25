@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { createClient } from "@supabase/supabase-js"
 import { ChatMessage } from "./chat-message"
+import { createCoalescedRefresh } from "./coalesced-refresh"
 
 interface Message {
   id: string
@@ -35,18 +36,6 @@ export function ChatRoom({ currentUserId, currentUsername, isAdmin }: ChatRoomPr
   const fileInputRef = useRef<HTMLInputElement>(null)
   const audioInputRef = useRef<HTMLInputElement>(null)
 
-  // Load messages
-  useEffect(() => {
-    async function load() {
-      const res = await fetch("/api/messages")
-      if (res.ok) {
-        const data = await res.json()
-        setMessages(data)
-      }
-    }
-    load()
-  }, [])
-
   // Realtime subscription + Presence (online users)
   useEffect(() => {
     const supabase = createClient(
@@ -58,6 +47,18 @@ export function ChatRoom({ currentUserId, currentUsername, isAdmin }: ChatRoomPr
     // non triggerano fetch inutili su questa app
     const APP_SOURCE = process.env.NEXT_PUBLIC_APP_SOURCE || "app_pionieri"
 
+    const refresh = createCoalescedRefresh<Message[]>(
+      async (signal) => {
+        const response = await fetch("/api/messages", { signal })
+        if (!response.ok) throw new Error(`Message refresh failed: ${response.status}`)
+        const data = await response.json()
+        if (!Array.isArray(data)) throw new Error("Invalid message response")
+        return data
+      },
+      setMessages,
+      () => console.warn("[chat] Message refresh failed"),
+    )
+
     const channel = supabase
       .channel("messages-realtime", { config: { presence: { key: currentUserId } } })
       .on("postgres_changes", {
@@ -65,19 +66,13 @@ export function ChatRoom({ currentUserId, currentUsername, isAdmin }: ChatRoomPr
         schema: "public",
         table: "messages",
         filter: `app_source=eq.${APP_SOURCE}`,
-      }, async () => {
-        const res = await fetch("/api/messages")
-        if (res.ok) setMessages(await res.json())
-      })
+      }, () => refresh.request())
       .on("postgres_changes", {
         event: "DELETE",
         schema: "public",
         table: "messages",
         filter: `app_source=eq.${APP_SOURCE}`,
-      }, async () => {
-        const res = await fetch("/api/messages")
-        if (res.ok) setMessages(await res.json())
-      })
+      }, () => refresh.request())
       .on("presence", { event: "sync" }, () => {
         const state = channel.presenceState()
         const users: { user_id: string; username: string }[] = []
@@ -92,11 +87,16 @@ export function ChatRoom({ currentUserId, currentUsername, isAdmin }: ChatRoomPr
       })
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
+          refresh.request()
           await channel.track({ user_id: currentUserId, username: currentUsername })
         }
       })
 
-    return () => { supabase.removeChannel(channel) }
+    refresh.request()
+    return () => {
+      refresh.stop()
+      supabase.removeChannel(channel)
+    }
   }, [currentUserId, currentUsername])
 
   // Auto-scroll
